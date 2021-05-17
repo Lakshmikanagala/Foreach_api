@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="a9ca4dd9-56d7-4628-85a6-c9829ae0ded2" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="foreach_sum_apiFlow" doc:id="cabb5516-3461-4774-bdb2-305b8c2126f0" >
+		<http:listener doc:name="Listener" doc:id="a3f48a53-2666-44f7-b1d7-e2f83475d927" config-ref="HTTP_Listener_config" path="/sum"/>
+		<set-variable value="0" doc:name="Set Variable" doc:id="fd24a510-cbe6-4a47-933a-75a6a97b596a" variableName="sum"/>
+		<foreach doc:name="For Each" doc:id="2765126f-b40b-4af8-b0a0-6054a9ffd13c" collection="[1,2,3,4,5]">
+			<ee:transform doc:name="Transform Message" doc:id="37f55307-8062-4349-bead-3c92f57ddaf5">
+			<ee:message>
+			</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="sum" ><![CDATA[%dw 2.0
+output application/java
+---
+vars.sum + payload]]></ee:set-variable>
+				</ee:variables>
+		</ee:transform>
+		</foreach>
+		<ee:transform doc:name="Transform Message" doc:id="898f48c3-d538-43b6-a67e-f1cd8dd4b186" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+vars.sum]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="6cfd9dcb-9822-4b9e-8104-c41dfa8c7010" message="#[payload]"/>
+	</flow>
+</mule>
